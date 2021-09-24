@@ -58,6 +58,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>message_generation</exec_depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

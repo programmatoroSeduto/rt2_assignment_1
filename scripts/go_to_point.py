@@ -8,7 +8,7 @@ from tf import transformations
 from rt2_assignment1.srv import Position
 import math
 import actionlib
-from rt2_assignment_1.msg import GoToPointAction, GoToPointGoal, GoToPointResult, GoToPointFeedback
+from rt2_assignment1.msg import GoToPointAction, GoToPointGoal, GoToPointResult, GoToPointFeedback
 
 # robot state variables
 position_ = Point()
@@ -149,8 +149,8 @@ class GoToPointActionCLass:
 	def __init__( self ):
 		self.as_ = actionlib.SimpleActionServer( "go_to_point", GoToPointAction, execute_cb=self.goToPoint, auto_start=False )
 		self.fb = GoToPointFeedback( )
-		
 		self.as_.start( )
+		rospy.loginfo( "go_to_point action started" )
 	
 	
 	def goToPoint( self, goal ):
@@ -159,11 +159,12 @@ class GoToPointActionCLass:
 		desired_position.x = goal.x
 		desired_position.y = goal.y
 		des_yaw = goal.theta
+		rospy.loginfo( "[go_to_point] goal: (%f, %f, %f)", goal.x, goal.y, goal.theta )
 		
 		success = True
 		change_state(0)
 		
-		time_before = rospy.TIme.now().to_nsec()
+		time_before = rospy.Time.now().to_nsec()
 		time_now = -1
 		self.fb.progressTime = 0
 		self.fb.status = 0
@@ -189,7 +190,7 @@ class GoToPointActionCLass:
 				done()
 				break
 			
-			time_now = rospy.TIme.now().to_nsec()
+			time_now = rospy.Time.now().to_nsec()
 			
 			# send the feedback
 			self.fb.status = state_
@@ -197,10 +198,11 @@ class GoToPointActionCLass:
 			self.fb.actualY = position_.y
 			self.fb.actualTheta = yaw_
 			self.fb.distance = math.sqrt( ( position_.x - desired_position.x )**2 + ( position_.y - desired_position.y )**2 )
-			self.fb.progress = self.fb.distance / max_distance
-			self.fb.progressTime = self.fb.progressTIme + (time_now - time_prev)
+			self.fb.progress = 1 - self.fb.distance / max_distance
+			self.fb.progressTime = self.fb.progressTime + (time_now - time_before)
 			time_prev = time_now
 			self.as_.publish_feedback( self.fb )
+			rospy.loginfo( "[go_to_point] searching ... time: %f, progress: %f%%", self.fb.progressTime, self.fb.progress*100 )
 		
 		if success:
 			# the target has been reached
@@ -208,6 +210,7 @@ class GoToPointActionCLass:
 			res = GoToPointResult( )
 			res.ok = True
 			self.as_.set_succeeded( res )
+			rospy.loginfo( "[go_to_point] SUCCESS in %f ms", self.fb.progressTime )
 
 
 def main():
@@ -216,6 +219,8 @@ def main():
     pub_ = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
     sub_odom = rospy.Subscriber('/odom', Odometry, clbk_odom)
     service = rospy.Service('/go_to_point', Position, go_to_point)
+    act = GoToPointActionCLass( )
+    rospy.loginfo( "go_to_point ONLINE" )
     rospy.spin()
 
 

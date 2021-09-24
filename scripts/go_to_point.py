@@ -7,6 +7,8 @@ from nav_msgs.msg import Odometry
 from tf import transformations
 from rt2_assignment1.srv import Position
 import math
+import actionlib
+from rt2_assignment_1.msg import GoToPointAction, GoToPointGoal, GoToPointResult, GoToPointFeedback
 
 # robot state variables
 position_ = Point()
@@ -53,6 +55,7 @@ def normalize_angle(angle):
         angle = angle - (2 * math.pi * angle) / (math.fabs(angle))
     return angle
 
+
 def fix_yaw(des_pos):
     desired_yaw = math.atan2(des_pos.y - position_.y, des_pos.x - position_.x)
     err_yaw = normalize_angle(desired_yaw - yaw_)
@@ -96,6 +99,7 @@ def go_straight_ahead(des_pos):
         #print ('Yaw error: [%s]' % err_yaw)
         change_state(0)
 
+
 def fix_final_yaw(des_yaw):
     err_yaw = normalize_angle(des_yaw - yaw_)
     rospy.loginfo(err_yaw)
@@ -111,12 +115,14 @@ def fix_final_yaw(des_yaw):
     if math.fabs(err_yaw) <= yaw_precision_2_:
         #print ('Yaw error: [%s]' % err_yaw)
         change_state(3)
+
         
 def done():
     twist_msg = Twist()
     twist_msg.linear.x = 0
     twist_msg.angular.z = 0
     pub_.publish(twist_msg)
+
     
 def go_to_point(req):
     desired_position = Point()
@@ -136,6 +142,74 @@ def go_to_point(req):
     		break
     return True
 
+
+
+
+class GoToPointActionCLass:
+	def __init__( self ):
+		self.as_ = actionlib.SimpleActionServer( "go_to_point", GoToPointAction, execute_cb=self.goToPoint, auto_start=False )
+		self.fb = GoToPointFeedback( )
+		
+		self.as_.start( )
+	
+	
+	def goToPoint( self, goal ):
+		# get the desired pose
+		desired_position = Point( )
+		desired_position.x = goal.x
+		desired_position.y = goal.y
+		des_yaw = goal.theta
+		
+		success = True
+		change_state(0)
+		
+		time_before = rospy.TIme.now().to_nsec()
+		time_now = -1
+		self.fb.progressTime = 0
+		self.fb.status = 0
+		
+		# it could not work because of a slow reading to the topic /odom
+		max_distance = math.sqrt( ( position_.x - desired_position.x )**2 + ( position_.y - desired_position.y )**2 )
+		
+		while True:
+			# check for any incoming cancellation request
+			if self.as_.is_preempt_requested( ):
+				success = False
+				self.as_.set_preempted( )
+				break;
+			
+			# state machine
+			if state_ == 0:
+				fix_yaw(desired_position)
+			elif state_ == 1:
+				go_straight_ahead(desired_position)
+			elif state_ == 2:
+				fix_final_yaw(des_yaw)
+			elif state_ == 3:
+				done()
+				break
+			
+			time_now = rospy.TIme.now().to_nsec()
+			
+			# send the feedback
+			self.fb.status = state_
+			self.fb.actualX = position_.x
+			self.fb.actualY = position_.y
+			self.fb.actualTheta = yaw_
+			self.fb.distance = math.sqrt( ( position_.x - desired_position.x )**2 + ( position_.y - desired_position.y )**2 )
+			self.fb.progress = self.fb.distance / max_distance
+			self.fb.progressTime = self.fb.progressTIme + (time_now - time_prev)
+			time_prev = time_now
+			self.as_.publish_feedback( self.fb )
+		
+		if success:
+			# the target has been reached
+			# publish the result
+			res = GoToPointResult( )
+			res.ok = True
+			self.as_.set_succeeded( res )
+
+
 def main():
     global pub_
     rospy.init_node('go_to_point')
@@ -143,6 +217,7 @@ def main():
     sub_odom = rospy.Subscriber('/odom', Odometry, clbk_odom)
     service = rospy.Service('/go_to_point', Position, go_to_point)
     rospy.spin()
+
 
 if __name__ == '__main__':
     main()

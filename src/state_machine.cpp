@@ -2,6 +2,9 @@
 #include "rt2_assignment1/Command.h"
 #include "rt2_assignment1/Position.h"
 #include "rt2_assignment1/RandomPosition.h"
+#include "rt2_assignment1/GoToPoint.h"
+#include "actionlib/client/simple_action_client.h"
+#include "actionlib/client/terminal_state.h"
 
 bool start = false;
 
@@ -23,6 +26,8 @@ int main(int argc, char **argv)
    ros::ServiceServer service= n.advertiseService("/user_interface", user_interface);
    ros::ServiceClient client_rp = n.serviceClient<rt2_assignment1::RandomPosition>("/position_server");
    ros::ServiceClient client_p = n.serviceClient<rt2_assignment1::Position>("/go_to_point");
+   actionlib::SimpleActionClient<rt2_assignment1::GoToPoint> ac( "go_to_point", True );
+   ac.waitForServer( )
    
    rt2_assignment1::RandomPosition rp;
    rp.request.x_max = 5.0;
@@ -34,13 +39,27 @@ int main(int argc, char **argv)
    while(ros::ok()){
    	ros::spinOnce();
    	if (start){
+		// ask for a random target
    		client_rp.call(rp);
-   		p.request.x = rp.response.x;
-   		p.request.y = rp.response.y;
-   		p.request.theta = rp.response.theta;
-   		std::cout << "\nGoing to the position: x= " << p.request.x << " y= " <<p.request.y << " theta = " <<p.request.theta << std::endl;
-   		client_p.call(p);
-   		std::cout << "Position reached" << std::endl;
+   		
+   		// prepare the goal
+   		//p.request.x = rp.response.x;
+   		//p.request.y = rp.response.y;
+   		//p.request.theta = rp.response.theta;
+   		rt2_assignment1::GoToPointGoal goal;
+   		goal.x = rp.response.x;
+   		goal.y = rp.response.y;
+   		goal.theta = rp.response.theta;
+   		// std::cout << "\nGoing to the position: x= " << p.request.x << " y= " <<p.request.y << " theta = " <<p.request.theta << std::endl;
+   		//client_p.call(p);
+   		
+   		// reach the position using the action
+   		ac.sendGoal( goal );
+   		bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
+   		if( finished_before_timeout )
+			std::cout << "Position reached" << std::endl;
+		else
+			std::cout << "Unable to reach the final position within the deadline" << std::endl;
    	}
    }
    return 0;

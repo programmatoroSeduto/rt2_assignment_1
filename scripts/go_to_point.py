@@ -47,7 +47,7 @@ def clbk_odom(msg):
 def change_state(state):
     global state_
     state_ = state
-    print ('State changed to [%s]' % state_)
+    # print ('State changed to [%s]' % state_)
 
 
 def normalize_angle(angle):
@@ -59,7 +59,7 @@ def normalize_angle(angle):
 def fix_yaw(des_pos):
     desired_yaw = math.atan2(des_pos.y - position_.y, des_pos.x - position_.x)
     err_yaw = normalize_angle(desired_yaw - yaw_)
-    rospy.loginfo(err_yaw)
+    # rospy.loginfo(err_yaw)
     twist_msg = Twist()
     if math.fabs(err_yaw) > yaw_precision_2_:
         twist_msg.angular.z = kp_a*err_yaw
@@ -80,7 +80,7 @@ def go_straight_ahead(des_pos):
     err_pos = math.sqrt(pow(des_pos.y - position_.y, 2) +
                         pow(des_pos.x - position_.x, 2))
     err_yaw = normalize_angle(desired_yaw - yaw_)
-    rospy.loginfo(err_yaw)
+    # rospy.loginfo(err_yaw)
 
     if err_pos > dist_precision_:
         twist_msg = Twist()
@@ -102,7 +102,7 @@ def go_straight_ahead(des_pos):
 
 def fix_final_yaw(des_yaw):
     err_yaw = normalize_angle(des_yaw - yaw_)
-    rospy.loginfo(err_yaw)
+    # rospy.loginfo(err_yaw)
     twist_msg = Twist()
     if math.fabs(err_yaw) > yaw_precision_2_:
         twist_msg.angular.z = kp_a*err_yaw
@@ -150,7 +150,7 @@ class GoToPointActionCLass:
 		self.as_ = actionlib.SimpleActionServer( "go_to_point", GoToPointAction, execute_cb=self.goToPoint, auto_start=False )
 		self.fb = GoToPointFeedback( )
 		self.as_.start( )
-		rospy.loginfo( "go_to_point action started" )
+		#rospy.loginfo( "go_to_point action started" )
 	
 	
 	def goToPoint( self, goal ):
@@ -175,8 +175,11 @@ class GoToPointActionCLass:
 		while True:
 			# check for any incoming cancellation request
 			if self.as_.is_preempt_requested( ):
-				success = False
+				rospy.loginfo( "CANCELLATION REQUEST RECEIVED." )
 				self.as_.set_preempted( )
+				success = False
+				done( )
+				change_state( 3 )
 				break;
 			
 			# state machine
@@ -202,7 +205,7 @@ class GoToPointActionCLass:
 			self.fb.progressTime = self.fb.progressTime + (time_now - time_before)
 			time_prev = time_now
 			self.as_.publish_feedback( self.fb )
-			rospy.loginfo( "[go_to_point] searching ... time: %f, progress: %f%%", self.fb.progressTime, self.fb.progress*100 )
+			# rospy.loginfo( "[go_to_point] searching ... time: %f, progress: %f%%", self.fb.progressTime, self.fb.progress*100 )
 		
 		if success:
 			# the target has been reached

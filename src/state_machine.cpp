@@ -5,8 +5,10 @@
 #include "rt2_assignment1/GoToPointAction.h"
 #include "actionlib/client/simple_action_client.h"
 #include "actionlib/client/terminal_state.h"
+#include <string>
 
 bool start = false;
+actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction>* acglobal;
 
 bool user_interface(rt2_assignment1::Command::Request &req, rt2_assignment1::Command::Response &res)
 {
@@ -18,7 +20,10 @@ bool user_interface(rt2_assignment1::Command::Request &req, rt2_assignment1::Com
     else 
     {
     	if ( start )
-			std::cout << "[state_machine] STOP command received. " << std::endl;
+    	{
+			std::cout << "[state_machine] STOP command received, preempting the goal. " << std::endl;
+			acglobal->cancelAllGoals( ); // cancel the running goal
+		}
 		else
 			std::cout << "[state_machine] state machine already stopped. " << std::endl;
 		
@@ -36,6 +41,7 @@ int main(int argc, char **argv)
    ros::ServiceClient client_rp = n.serviceClient<rt2_assignment1::RandomPosition>("/position_server");
    ros::ServiceClient client_p = n.serviceClient<rt2_assignment1::Position>("/go_to_point");
    actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction> ac( "go_to_point", true );
+   acglobal = &ac;
    ac.waitForServer( );
    
    rt2_assignment1::RandomPosition rp;
@@ -60,17 +66,25 @@ int main(int argc, char **argv)
    		goal.x = rp.response.x;
    		goal.y = rp.response.y;
    		goal.theta = rp.response.theta;
-   		cout << "NEXT TARGET (" << goal.x << ", " << goal.y << ", " << goal.theta << ")" << std::endl;
+   		std::cout << "NEXT TARGET (" << goal.x << ", " << goal.y << ", " << goal.theta << ")" << std::endl;
    		// std::cout << "\nGoing to the position: x= " << p.request.x << " y= " <<p.request.y << " theta = " <<p.request.theta << std::endl;
    		//client_p.call(p);
    		
    		// reach the position using the action
    		ac.sendGoal( goal );
+   		
+   		// TODO 
+   		// questa istruzione manda in pausa l'intero thread
+   		// implementare un busy waiting (per ora) al posto di usare la .waitForResults( )
    		bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
-   		if( finished_before_timeout )
+   		std::string state = ac.getState( ).toString( );
+   		if( state == "PREEMPTED" )
+			std::cout << "The goal has been cancelled. " << std::endl;
+   		else if( finished_before_timeout )
 			std::cout << "Position reached" << std::endl;
 		else
 			std::cout << "Unable to reach the final position within the deadline" << std::endl;
+		
    	}
    }
    return 0;

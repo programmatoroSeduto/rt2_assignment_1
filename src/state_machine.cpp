@@ -7,11 +7,15 @@
 #include "actionlib/client/terminal_state.h"
 #include <string>
 
+#define WAITING_DELAY 0.1
+#define MAX_WAITING_TIME 30
+
 bool start = false;
 actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction>* acglobal;
 
 bool user_interface(rt2_assignment1::Command::Request &req, rt2_assignment1::Command::Response &res)
 {
+	std::cout << "[state_machine] received a request. " << std::endl;
     if (req.command == "start")
     {
     	start = true;
@@ -39,7 +43,7 @@ int main(int argc, char **argv)
    ros::NodeHandle n;
    ros::ServiceServer service= n.advertiseService("/user_interface", user_interface);
    ros::ServiceClient client_rp = n.serviceClient<rt2_assignment1::RandomPosition>("/position_server");
-   ros::ServiceClient client_p = n.serviceClient<rt2_assignment1::Position>("/go_to_point");
+   // ros::ServiceClient client_p = n.serviceClient<rt2_assignment1::Position>("/go_to_point");
    actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction> ac( "go_to_point", true );
    acglobal = &ac;
    ac.waitForServer( );
@@ -76,6 +80,7 @@ int main(int argc, char **argv)
    		// TODO 
    		// questa istruzione manda in pausa l'intero thread
    		// implementare un busy waiting (per ora) al posto di usare la .waitForResults( )
+   		/*
    		bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
    		std::string state = ac.getState( ).toString( );
    		if( state == "PREEMPTED" )
@@ -84,7 +89,37 @@ int main(int argc, char **argv)
 			std::cout << "Position reached" << std::endl;
 		else
 			std::cout << "Unable to reach the final position within the deadline" << std::endl;
+		*/
 		
+		// waiting for the robot to reach the goal unless any preemption request
+		bool success = false;
+		float timeFromStart = 0.f;
+		std::string state = "ACTIVE";
+		while( state != "SUCCEEDED" )
+		{
+			// success = ac.waitForResult( ros::Duration(WAITING_DELAY) );
+			(ros::Duration(WAITING_DELAY)).sleep();
+			ros::spinOnce();
+			timeFromStart += WAITING_DELAY;
+			state = ac.getState( ).toString( );
+			// std::cout << "time elapsed: " << timeFromStart << " state: " << state << std::endl;
+			
+			if( state == "PREEMPTED" )
+			{
+				std::cout << "The goal has been cancelled. " << std::endl;
+				break;
+			}
+			else if( timeFromStart > MAX_WAITING_TIME )
+			{
+				std::cout << "Unable to reach the final position within the deadline. " << std::endl;
+				break;
+			}
+		}
+		
+		if( success )
+			std::cout << "Position reached" << std::endl;
+		else
+			std::cout << "Final goal not reached" << std::endl;
    	}
    }
    return 0;

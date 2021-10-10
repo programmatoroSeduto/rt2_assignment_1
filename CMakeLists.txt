@@ -138,6 +138,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(position_service src/position_service.cpp)
  add_executable(state_machine src/state_machine.cpp)
+ add_executable(dummy_action_client src/dummy_action_client.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,6 +157,10 @@ include_directories(
  )
  
  target_link_libraries(state_machine
+   ${catkin_LIBRARIES}
+ )
+ 
+ target_link_libraries(dummy_action_client
    ${catkin_LIBRARIES}
  )
 

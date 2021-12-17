@@ -5,7 +5,7 @@
  *      <ul><li>random_position_server</li></ul></div>
  * \brief Service for Random Pose
  * 
- * \authors Recchiuto Carmine
+ * \authors Carmine Tommaso Recchiuto
  * \version v1.0
  * 
  * <b>Description:</b> <br>

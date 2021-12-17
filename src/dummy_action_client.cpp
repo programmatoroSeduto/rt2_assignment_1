@@ -1,9 +1,53 @@
+/********************************************//**
+ *  
+ * \file dummy_action_client.cpp
+ * <div><b>ROS Node Name</b> 
+ *      <ul><li>DummyActionClient</li></ul></div>
+ * \brief test of the functionalities of \ref go_to_point.py movement action.
+ * 
+ * \authors Francesco Ganci (S4143910)
+ * \version v1.0
+ * 
+ * <b>Description:</b> <br>
+ * <p>
+ * This simple node aims at testing how the movement action implemented in 
+ * the node go_to_point.py works. In particular, cancellation is tested 
+ * out. <br><br>
+ * The code inside this test is noteworthy, because the action client is
+ * implemented as a class which collects also the other service needed. In
+ * other words, the class provides a helpful <i>abstraction</i>. 
+ * </p>
+ * 
+ * <b>Clients:</b> <br>
+ * <ul>
+ *     <li>
+ * 			<i>/position_server</i> : RandomPosition.srv <br>
+ * 			See the node \ref position_service.cpp
+ * 		</li>
+ * </ul>
+ * 
+ * <b>Using actions</b> <br>
+ * <ul>
+ *     <li>
+ * 			<i>go_to_point</i> : GoToPoint.action <br>
+ *			See \ref go_to_point.py
+ * 		</li>
+ * </ul>
+ * 
+ * <b>TODOs</b><br>
+ * \todo TRANSLATE THE LOGS HERE.
+ * \todo write the documentation of the code within this node. 
+ * 
+ ***********************************************/
 
 #include "ros/ros.h"
 #include "actionlib/client/simple_action_client.h"
 #include "actionlib/client/terminal_state.h"
+
 #include "rt2_assignment1/GoToPointAction.h"
 #include "rt2_assignment1/RandomPosition.h"
+
+
 
 
 class DummyActionClient
@@ -16,7 +60,6 @@ public:
 	{
 		// richiesta dell'action client
 		std::cout << "richiesta action client 'go_to_point' ..." << std::endl;
-		//ac = actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction>( "go_to_point", true );
 		ac.waitForServer();
 		std::cout << "action client 'go_to_point' -> OK" << std::endl;
 		

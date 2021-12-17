@@ -28,8 +28,8 @@
  * </p>
  * 
  * <b>UML component</b><br>
- * (See \ref robocluedo_arch the overal architecture, for further informations)<br>
- * <img src="UML_components_cluedo_movement_controller.png" /><br>
+ * (See ... the overal architecture, for further informations)<br>
+ * <img src="" alt="TODO uml"/><br>
  * 
  * <b>Services:</b> <br>
  * <ul>
@@ -61,6 +61,7 @@
  * <b>TODOs</b><br>
  * \todo UML diagram for this node
  * \todo the command should be case-insensitive
+ * \todo review the output to the screen
  * 
  ***********************************************/
 

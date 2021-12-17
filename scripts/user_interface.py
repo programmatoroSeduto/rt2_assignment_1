@@ -1,3 +1,41 @@
+"""! 
+ 
+@file user_interface.py
+<div><b>ROS Node Name</b> 
+     <ul><li>user_interface</li></ul></div>
+@brief a very simple user interface from shell
+ 
+@authors Carmine Tommaso Recchiuto
+@version v1.0
+
+<b>Description:</b> <br>
+<p>
+When the simulation is started, the console asks to press '1' to start 
+the motion of the robot, and to press '0' for stopping the motion. This is
+the interface this node provides to the user. The node interacts with the
+node @ref state_machine.cpp : when the user sends '1', the command "start"
+is sent to the state_machine.cpp node. "stop" is sent when the user presses
+any other key different from '1'. <br><br>
+There's no error handling. Just a simple implementation. 
+</p>
+
+<b>UML component</b><br>
+(See ... the overal architecture, for further informations)<br>
+<img src="" alt="TODO uml"/><br>
+
+<b>Clients:</b> <br>
+<ul>
+    <li>
+			<i>/user_interface</i> : Command.srv <br>
+			see the service \ref state_machine.cpp <br><br>
+		</li>
+</ul>
+
+<b>TODOs</b><br>
+@todo review the logs from this node
+
+"""
+
 import rospy
 import time
 from rt2_assignment1.srv import Command

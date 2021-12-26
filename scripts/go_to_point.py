@@ -1,5 +1,53 @@
 #! /usr/bin/env python
 
+"""! 
+ 
+@file go_to_point.py
+<div><b>ROS Node Name</b> 
+     <ul><li>go_to_point</li></ul></div>
+@brief Implementation of the movement action. 
+ 
+@authors Carmine Tommaso Recchiuto, Francesco Ganci (S4143910)
+@version v1.0
+
+<b>Description:</b> <br>
+<p>
+This node moves the robot towards a given target (position+orientation) 
+using a simple state machine. It is implemented as a ROS action. 
+</p>
+
+<b>UML component</b><br>
+(See ... the overal architecture, for further informations)<br>
+<img src="" alt="TODO uml"/><br>
+
+<b>Publishers:</b> <br>
+<ul>
+    <li>
+			<i>/cmd_vel</i> : Twist <br>
+			The node can send a twist to the simulator through this topic. <br><br>
+		</li>
+</ul>
+
+<b>Subscribers:</b> <br>
+<ul>
+    <li>
+			<i>/odom</i> : Odometry <br><br>
+		</li>
+</ul>
+
+<b>Providing actions</b> <br>
+<ul>
+    <li>
+			<i>go_to_point</i> : GoToPoint.action <br>
+			Move the robot towards a given target pose. The node manages
+			a planar pose. 
+		</li>
+</ul>
+
+<b>TODOs</b><br>
+@todo put more comments and tidy up the code
+
+"""
 
 import rospy
 from geometry_msgs.msg import Twist, Point
@@ -123,26 +171,6 @@ def done():
     twist_msg.angular.z = 0
     pub_.publish(twist_msg)
 
-    
-def go_to_point(req):
-    desired_position = Point()
-    desired_position.x = req.x
-    desired_position.y = req.y
-    des_yaw = req.theta
-    change_state(0)
-    while True:
-    	if state_ == 0:
-    		fix_yaw(desired_position)
-    	elif state_ == 1:
-    		go_straight_ahead(desired_position)
-    	elif state_ == 2:
-    		fix_final_yaw(des_yaw)
-    	elif state_ == 3:
-    		done()
-    		break
-    return True
-
-
 
 
 class GoToPointActionCLass:
@@ -221,7 +249,6 @@ def main():
     rospy.init_node('go_to_point')
     pub_ = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
     sub_odom = rospy.Subscriber('/odom', Odometry, clbk_odom)
-    service = rospy.Service('/go_to_point', Position, go_to_point)
     act = GoToPointActionCLass( )
     rospy.loginfo( "go_to_point ONLINE" )
     rospy.spin()

@@ -1,0 +1,9 @@
+# SOURCE ROS2
+source /opt/ros/foxy/setup.sh && clear
+
+# SOURCE ROS2 and ws_ros2
+source /opt/ros/foxy/setup.sh && source /root/rt2_assignment_1/ws_ros2/install/setup.sh && clear
+
+# CREATE A ROS2 C++ PACKAGE
+ros2 pkg create --build-type ament_cmake <package_name>
+

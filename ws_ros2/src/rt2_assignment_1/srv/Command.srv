@@ -1,3 +1,7 @@
+## service file 'Command.srv'
+
+# the command "start" starts the motion; any other command stops the robot
 string command
 ---
+# if the robot is moving or not
 bool ok

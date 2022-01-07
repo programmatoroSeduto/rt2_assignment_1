@@ -1,8 +1,12 @@
+## service file 'RandomPosition.srv'
+
+# boundaries for x and y (no bounds for theta)
 float32 x_max
 float32 x_min
 float32 y_max
 float32 y_min
 ---
+# the goal posture (x, y, theta_z)
 float32 x
 float32 y
 float32 theta

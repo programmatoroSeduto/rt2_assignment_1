@@ -19,16 +19,15 @@ endif()
 find_package( ament_cmake REQUIRED )
 find_package( rclcpp REQUIRED )
 find_package( std_msgs REQUIRED )
+find_package( rt2_assignment_1 REQUIRED )
 find_package( rosidl_default_generators REQUIRED )
 
-#rosidl_generate_interfaces( ${PROJECT_NAME} ...msg and srv... DEPENDENCIES std_msgs )
-
 add_executable( ros2_bridge_support_node src/ros2_bridge_support_node.cpp )
-ament_target_dependencies( ros2_bridge_support_node rclcpp std_msgs )
+ament_target_dependencies( ros2_bridge_support_node rclcpp std_msgs rt2_assignment_1 )
 rosidl_target_interfaces( ros2_bridge_support_node ${PROJECT_NAME} "rosidl_typesupport_cpp" )
 
 install( TARGETS 
-	ROS2_bridge_topic_sender
+	ros2_bridge_support_node
 DESTINATION lib/${PROJECT_NAME} )
 
 if(BUILD_TESTING)

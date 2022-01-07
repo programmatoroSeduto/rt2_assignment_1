@@ -1,5 +1,9 @@
+## service file 'Position.srv'
+
+# end posture (x, y, theta_z)
 float32 x
 float32 y
 float32 theta
 ---
+# point reached or not
 bool ok

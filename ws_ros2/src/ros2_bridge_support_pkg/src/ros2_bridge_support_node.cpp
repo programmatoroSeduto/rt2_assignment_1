@@ -6,9 +6,31 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 
 #include "std_msgs/msg/string.hpp"
-
-// put here your custom services and topics...
-// ...
+#include "rt2_assignment_1/srv/command.srv"
+/*
+string command
+---
+bool ok
+*/
+#include "rt2_assignment_1/srv/Position.srv"
+/*
+float32 x
+float32 y
+float32 theta
+---
+bool ok
+*/
+#include "rt2_assignment_1/srv/RandomPosition.srv"
+/*
+float32 x_max
+float32 x_min
+float32 y_max
+float32 y_min
+---
+float32 x
+float32 y
+float32 theta
+*/
 
 #define NODE_NAME "ros2_bridge_support_node"
 #define BRIDGE_TOPIC_NAME_PREFIX "/bridge_topic"
@@ -162,8 +184,135 @@ namespace cast_tools
 		return str;
 	}
 	
-	// put here your custom cast rules ...
-	// ...
+	// --- RULES FOR Command.srv
+	// cast the service request rt2_assignment_1::srv::Command
+	std::string cast_service_request( const std::shared_ptr<rt2_assignment_1::srv::Command::Request> req )
+	{
+		return cast_tools::cast_field( req->command, false );
+	}
+
+	// cast back the service request of rt2_assignment_1::srv::Command
+	rt2_assignment_1::srv::Command::Request cast_back_service_request( std::string &msg )
+	{
+		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
+		
+		rt2_assignment_1::srv::Command::Request req;
+		req.command = content[0];
+		
+		return req;
+	}
+
+	// cast the service response of rt2_assignment_1::srv::Command
+	std::string cast_service_response( const std::shared_ptr<rt2_assignment_1::srv::Command::Response> res )
+	{
+		return cast_tools::cast_field( res->ok, false );
+	}
+
+	// cast back the service response rt2_assignment_1::srv::Command
+	rt2_assignment_1::srv::Command::Response cast_back_service_response( std::string &msg )
+	{
+		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
+		
+		rt2_assignment_1::srv::Command::Response res;
+		res.ok = cast_kac_field( content[0] );
+		
+		return res;
+	}
+	
+	// --- RULES FOR Position.srv
+	// cast the service request rt2_assignment_1::srv::Position
+	std::string cast_service_request( const std::shared_ptr<rt2_assignment_1::srv::Position::Request> req )
+	{
+		std::string str = "";
+		
+		str += SSS( req->x ) + " ";
+		str += SSS( req->y ) + " ";
+		str += SSS( req->theta );
+		
+		return str;
+	}
+
+	// cast back the service request of rt2_assignment_1::srv::Position
+	rt2_assignment_1::srv::Position::Request cast_back_service_request( std::string &msg )
+	{
+		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
+		
+		rt2_assignment_1::srv::Position::Request req;
+		
+		req.x = atof( content[0].c_str( ) );
+		req.y = atof( content[1].c_str( ) );
+		req.theta = atof( content[2].c_str( ) );
+		
+		return req;
+	}
+
+	// cast the service response of rt2_assignment_1::srv::Position
+	std::string cast_service_response( const std::shared_ptr<rt2_assignment_1::srv::Position::Response> res )
+	{
+		return cast_tools::cast_field( res->ok, false );
+	}
+
+	// cast back the service response rt2_assignment_1::srv::Position
+	rt2_assignment_1::srv::Position::Response cast_back_service_response( std::string &msg )
+	{
+		rt2_assignment_1::srv::Position::Response res;
+		res.ok = cast_tools::cast_back_field( msg );
+		
+		return res;
+	}
+	
+	// --- RULES FOR RandomPosition.srv
+	// cast the service request rt2_assignment_1::srv::RandomPosition
+	std::string cast_service_request( const std::shared_ptr<rt2_assignment_1::srv::RandomPosition::Request> req )
+	{
+		std::string str = "";
+		
+		str += SSS( req->x_min ) + " ";
+		str += SSS( req->x_max ) + " ";
+		str += SSS( req->y_min ) + " ";
+		str += SSS( req->y_max );
+		
+		return str;
+	}
+
+	// cast back the service request of rt2_assignment_1::srv::RandomPosition
+	rt2_assignment_1::srv::RandomPosition::Request cast_back_service_request( std::string &msg )
+	{
+		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
+		
+		rt2_assignment_1::srv::RandomPosition::Request req;
+		req.x_min = atof( content[0].c_str( ) );
+		req.x_max = atof( content[1].c_str( ) );
+		req.y_min = atof( content[2].c_str( ) );
+		req.y_max = atof( content[3].c_str( ) );
+		
+		return req;
+	}
+
+	// cast the service response of rt2_assignment_1::srv::RandomPosition
+	std::string cast_service_response( const std::shared_ptr<rt2_assignment_1::srv::RandomPosition::Response> res )
+	{
+		std::string str = "";
+		
+		str += SSS( res->x ) + " ";
+		str += SSS( res->y ) + " ";
+		str += SSS( res->theta );
+		
+		return str;
+	}
+
+	// cast back the service response rt2_assignment_1::srv::RandomPosition
+	rt2_assignment_1::srv::RandomPosition::Response cast_back_service_response( std::string &msg )
+	{
+		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
+		
+		rt2_assignment_1::srv::RandomPosition::Response res;
+		res.x = atof( content[0].c_str( ) );
+		res.y = atof( content[1].c_str( ) );
+		rex.theta = atof( content[2].c_str( ) );
+		
+		return res;
+	}
 }
 
 /// representation of a topic in ROS2

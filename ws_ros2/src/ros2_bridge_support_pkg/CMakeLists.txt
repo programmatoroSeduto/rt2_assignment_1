@@ -24,7 +24,7 @@ find_package( rosidl_default_generators REQUIRED )
 
 add_executable( ros2_bridge_support_node src/ros2_bridge_support_node.cpp )
 ament_target_dependencies( ros2_bridge_support_node rclcpp std_msgs rt2_assignment_1 )
-rosidl_target_interfaces( ros2_bridge_support_node ${PROJECT_NAME} "rosidl_typesupport_cpp" )
+# rosidl_target_interfaces( ros2_bridge_support_node ${PROJECT_NAME} "rosidl_typesupport_cpp" )
 
 install( TARGETS 
 	ros2_bridge_support_node

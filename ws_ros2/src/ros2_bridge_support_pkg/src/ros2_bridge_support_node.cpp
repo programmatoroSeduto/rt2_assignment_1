@@ -6,37 +6,17 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 
 #include "std_msgs/msg/string.hpp"
-#include "rt2_assignment_1/srv/command.srv"
-/*
-string command
----
-bool ok
-*/
-#include "rt2_assignment_1/srv/Position.srv"
-/*
-float32 x
-float32 y
-float32 theta
----
-bool ok
-*/
-#include "rt2_assignment_1/srv/RandomPosition.srv"
-/*
-float32 x_max
-float32 x_min
-float32 y_max
-float32 y_min
----
-float32 x
-float32 y
-float32 theta
-*/
+#include "rt2_assignment_1/srv/command.hpp"
+#include "rt2_assignment_1/srv/position.hpp"
 
 #define NODE_NAME "ros2_bridge_support_node"
 #define BRIDGE_TOPIC_NAME_PREFIX "/bridge_topic"
 #define BRIDGE_SERVICE_NAME_PREFIX "/bridge_service"
 #define QUEUE_SZ_DEFAULT 100
 #define WAITING_DELAY 0.01
+
+#define SERVICE_USER_INTERFACE "/user_interface"
+#define CLIENT_GO_TO_POINT "/go_to_point"
 
 #define LOGSQUARE( str ) "[" << str << "] "
 #define OUTLOG( msg_stream ) RCLCPP_INFO_STREAM( rclcpp::get_logger( NODE_NAME ), msg_stream )
@@ -184,6 +164,37 @@ namespace cast_tools
 		return str;
 	}
 	
+	// --- STUB TEMPLATE CAST RULES
+	// cast topic msg
+	template< typename c_msg_type > 
+	std::string cast_message( const typename c_msg_type::SharedPtr msg )
+	{ return "/{//}"; }
+
+	// cast back topic msg
+	template< typename cb_msg_type > 
+	void cast_back_message( const std_msgs::msg::String::SharedPtr msg, cb_msg_type& msg_return )
+	{ msg = msg; msg_return = msg_return; }
+
+	// cast the service request
+	template< class c_srv_type_req >
+	std::string cast_service_request( const std::shared_ptr<typename c_srv_type_req::Request> req )
+	{ return "/{//}"; }
+
+	// cast back the service request
+	template< typename cb_srv_type_req >
+	void cast_back_service_request( std::string &msg, std::shared_ptr< typename cb_srv_type_req::Request >& req )
+	{ msg = msg; req = req; }
+
+	// cast the service response
+	template< typename c_srv_type_res >
+	std::string cast_service_response( const std::shared_ptr<typename c_srv_type_res::Response> res )
+	{ return "/{//}"; }
+
+	// cast back the service response
+	template< typename cb_srv_type_res >
+	void cast_back_service_response( std::string &msg, std::shared_ptr< typename cb_srv_type_res::Response >& res )
+	{ msg = msg; res = res; }
+	
 	// --- RULES FOR Command.srv
 	// cast the service request rt2_assignment_1::srv::Command
 	std::string cast_service_request( const std::shared_ptr<rt2_assignment_1::srv::Command::Request> req )
@@ -192,14 +203,9 @@ namespace cast_tools
 	}
 
 	// cast back the service request of rt2_assignment_1::srv::Command
-	rt2_assignment_1::srv::Command::Request cast_back_service_request( std::string &msg )
+	void cast_back_service_request( std::string &msg, std::shared_ptr<rt2_assignment_1::srv::Command::Request>& req )
 	{
-		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
-		
-		rt2_assignment_1::srv::Command::Request req;
-		req.command = content[0];
-		
-		return req;
+		req->command = msg;
 	}
 
 	// cast the service response of rt2_assignment_1::srv::Command
@@ -209,14 +215,9 @@ namespace cast_tools
 	}
 
 	// cast back the service response rt2_assignment_1::srv::Command
-	rt2_assignment_1::srv::Command::Response cast_back_service_response( std::string &msg )
+	void cast_back_service_response( std::string &msg, std::shared_ptr<rt2_assignment_1::srv::Command::Response>& res )
 	{
-		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
-		
-		rt2_assignment_1::srv::Command::Response res;
-		res.ok = cast_kac_field( content[0] );
-		
-		return res;
+		res->ok = cast_back_field( msg );
 	}
 	
 	// --- RULES FOR Position.srv
@@ -233,17 +234,13 @@ namespace cast_tools
 	}
 
 	// cast back the service request of rt2_assignment_1::srv::Position
-	rt2_assignment_1::srv::Position::Request cast_back_service_request( std::string &msg )
+	void cast_back_service_request( std::string &msg, std::shared_ptr<rt2_assignment_1::srv::Position::Request>& req )
 	{
 		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
 		
-		rt2_assignment_1::srv::Position::Request req;
-		
-		req.x = atof( content[0].c_str( ) );
-		req.y = atof( content[1].c_str( ) );
-		req.theta = atof( content[2].c_str( ) );
-		
-		return req;
+		req->x = atof( content[0].c_str( ) );
+		req->y = atof( content[1].c_str( ) );
+		req->theta = atof( content[2].c_str( ) );
 	}
 
 	// cast the service response of rt2_assignment_1::srv::Position
@@ -253,65 +250,9 @@ namespace cast_tools
 	}
 
 	// cast back the service response rt2_assignment_1::srv::Position
-	rt2_assignment_1::srv::Position::Response cast_back_service_response( std::string &msg )
+	void cast_back_service_response( std::string &msg, std::shared_ptr<rt2_assignment_1::srv::Position::Response>& res )
 	{
-		rt2_assignment_1::srv::Position::Response res;
-		res.ok = cast_tools::cast_back_field( msg );
-		
-		return res;
-	}
-	
-	// --- RULES FOR RandomPosition.srv
-	// cast the service request rt2_assignment_1::srv::RandomPosition
-	std::string cast_service_request( const std::shared_ptr<rt2_assignment_1::srv::RandomPosition::Request> req )
-	{
-		std::string str = "";
-		
-		str += SSS( req->x_min ) + " ";
-		str += SSS( req->x_max ) + " ";
-		str += SSS( req->y_min ) + " ";
-		str += SSS( req->y_max );
-		
-		return str;
-	}
-
-	// cast back the service request of rt2_assignment_1::srv::RandomPosition
-	rt2_assignment_1::srv::RandomPosition::Request cast_back_service_request( std::string &msg )
-	{
-		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
-		
-		rt2_assignment_1::srv::RandomPosition::Request req;
-		req.x_min = atof( content[0].c_str( ) );
-		req.x_max = atof( content[1].c_str( ) );
-		req.y_min = atof( content[2].c_str( ) );
-		req.y_max = atof( content[3].c_str( ) );
-		
-		return req;
-	}
-
-	// cast the service response of rt2_assignment_1::srv::RandomPosition
-	std::string cast_service_response( const std::shared_ptr<rt2_assignment_1::srv::RandomPosition::Response> res )
-	{
-		std::string str = "";
-		
-		str += SSS( res->x ) + " ";
-		str += SSS( res->y ) + " ";
-		str += SSS( res->theta );
-		
-		return str;
-	}
-
-	// cast back the service response rt2_assignment_1::srv::RandomPosition
-	rt2_assignment_1::srv::RandomPosition::Response cast_back_service_response( std::string &msg )
-	{
-		std::vector< std::string > content = str_tools::pack_split( msg, ' ' );
-		
-		rt2_assignment_1::srv::RandomPosition::Response res;
-		res.x = atof( content[0].c_str( ) );
-		res.y = atof( content[1].c_str( ) );
-		rex.theta = atof( content[2].c_str( ) );
-		
-		return res;
+		res->ok = cast_tools::cast_back_field( msg );
 	}
 }
 
@@ -330,7 +271,7 @@ public:
 	{
 		// cast the message to string
 		std_msgs::msg::String bridge_data;
-		bridge_data.data = cast_tools::cast_message( msg );
+		bridge_data.data = cast_tools::cast_message< topicT_sub >( msg );
 		
 		// publish the message
 		this->pub->publish( bridge_data );
@@ -340,7 +281,8 @@ public:
 	void bridge_cbk_in( const std_msgs::msg::String::SharedPtr msg ) const
 	{
 		// cast back the message from string to message
-		topicT_pub bridge_data = cast_tools::cast_back_message( msg );
+		topicT_pub bridge_data;
+		cast_tools::cast_back_message< topicT_pub >( msg, bridge_data );
 		
 		// publish the message
 		this->pub->publish( bridge_data );
@@ -382,7 +324,7 @@ public:
 		
 		// cast the request to string
 		std_msgs::msg::String req_str;
-		req_str.data = cast_tools::cast_service_request( req );
+		req_str.data = cast_tools::cast_service_request< serviceT >( req );
 		
 		// send the request to ROS1 through topic_out 
 		this->topic_out->publish( req_str );
@@ -397,7 +339,7 @@ public:
 		OUTLOG( "got a response from ROS1 -> [" << response_string << "]" );
 		
 		// cast back the message and write it
-		*res = cast_tools::cast_back_service_response( response_string );
+		cast_tools::cast_back_service_response< serviceT >( response_string, res );
 	}
 	
 	/// subscriber which calls the endpoint
@@ -409,19 +351,19 @@ public:
 		OUTLOG( "with data: [" << msg->data << "]" );
 		
 		// cast back of the request
-		auto req = std::make_shared<ros2_bridge_support_pkg::srv::MyCustomService::Request>( );
-		*req = cast_tools::cast_back_service_request( msg-> data );
+		auto req = std::make_shared< typename serviceT::Request >( );
+		cast_tools::cast_back_service_request< serviceT >( msg-> data, req );
 		
 		// call the endpoint and get the result
 		OUTLOG( "waiting for a response from the service..." );
-		auto res_future = (service_in->async_send_request( req ));
+		auto res_future = service_in->async_send_request( req );
 		// synchronous request
 		res_future.wait( );
 		auto res = res_future.get( );
 		
 		// cast the response from the endpoint
 		std_msgs::msg::String res_str;
-		res_str.data = cast_tools::cast_service_response( res );
+		res_str.data = cast_tools::cast_service_response< serviceT >( res );
 		
 		// publish the response
 		OUTLOG( "returning response: [" << res_str.data << "]" );
@@ -429,8 +371,7 @@ public:
 	}
 	
 	/// callback service subscriber
-	void topic_in_callback(
-		const std_msgs::msg::String::SharedPtr msg )
+	void topic_in_callback( const std_msgs::msg::String::SharedPtr msg )
 	{
 		if( waiting_response )
 		{
@@ -454,14 +395,21 @@ class ros2_bridge_support : public rclcpp::Node
 public:
 	ros2_bridge_support( ) : rclcpp::Node( NODE_NAME )  // using static mapping
 	{
+		// service user interface
+		make_link_service_in<rt2_assignment_1::srv::Command>( &srv_user_interface, SERVICE_USER_INTERFACE );
 		
+		// client go to point
+		make_link_service_out<rt2_assignment_1::srv::Position>( &srv_go_to_point, CLIENT_GO_TO_POINT );
 		
 		OUTLOG( "online!" );
 	}
 
 private:
-	// put here the definitions of your services and topics
-	// ...
+	// in service user interface
+	bridge_service<rt2_assignment_1::srv::Command> srv_user_interface;
+	
+	// out service go to poin
+	bridge_service<rt2_assignment_1::srv::Position> srv_go_to_point;
 	
 	// --- LINK METHODS ---
 	

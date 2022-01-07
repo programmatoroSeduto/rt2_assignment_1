@@ -7,3 +7,4 @@ source /opt/ros/foxy/setup.sh && source /root/rt2_assignment_1/ws_ros2/install/s
 # CREATE A ROS2 C++ PACKAGE AND BUILD
 ros2 pkg create --build-type ament_cmake <package_name>
 clear && colcon build --packages-select rt2_assignment_1
+clear && /root/rt2_assignment_1/ws_ros2/build.sh && source /opt/ros/foxy/setup.sh && source /root/rt2_assignment_1/ws_ros2/install/setup.sh

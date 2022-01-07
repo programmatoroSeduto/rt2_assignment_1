@@ -15,11 +15,34 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+## --- DEENDENCIES
+find_package( ament_cmake REQUIRED )
+find_package( rclcpp REQUIRED )
+find_package( rosidl_default_generators REQUIRED )
+find_package( std_msgs REQUIRED )
+
+## --- BUILD OF INTERFACES
+set( srv_files
+	"srv/Command.srv"
+	"srv/Position.srv"
+	"srv/RandomPosition.srv"
+)
+
+rosidl_generate_interfaces( ${PROJECT_NAME} ${srv_files} DEPENDENCIES std_msgs )
+
+## --- BUILD OF EXECUTABLES
+add_executable( position_service src/position_service.cpp )
+ament_target_dependencies( position_service rclcpp std_msgs )
+rosidl_target_interfaces( position_service ${PROJECT_NAME} "rosidl_typesupport_cpp" )
+
+add_executable( state_machine src/state_machine.cpp )
+ament_target_dependencies( state_machine rclcpp std_msgs )
+rosidl_target_interfaces( state_machine ${PROJECT_NAME} "rosidl_typesupport_cpp" )
+
+install( TARGETS 
+	position_service
+	state_machine
+DESTINATION lib/${PROJECT_NAME} )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

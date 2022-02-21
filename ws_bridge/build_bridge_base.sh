@@ -1,6 +1,6 @@
 #! /bin/bash
 
-cd /root/simple_bridge/ws_bridge
+cd /root/rt2_assignment_1/ws_bridge
 rm -rf src 
 rm -rf build
 rm -rf install

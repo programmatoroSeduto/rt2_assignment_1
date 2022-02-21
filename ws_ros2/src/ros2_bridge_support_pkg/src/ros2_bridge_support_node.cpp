@@ -165,35 +165,60 @@ namespace cast_tools
 	}
 	
 	// --- STUB TEMPLATE CAST RULES
+	
 	// cast topic msg
-	template< typename c_msg_type > 
-	std::string cast_message( const typename c_msg_type::SharedPtr msg )
-	{ return "/{//}"; }
+	// template< typename c_msg_type > 
+	// std::string cast_message( const typename c_msg_type::SharedPtr msg )
+	std::string cast_message( const std_msgs::msg::String::SharedPtr msg )
+	{
+		OUTLOG( "calling naive cast_message( )" );
+		return "/{//}"; 
+	}
 
 	// cast back topic msg
-	template< typename cb_msg_type > 
-	void cast_back_message( const std_msgs::msg::String::SharedPtr msg, cb_msg_type& msg_return )
-	{ msg = msg; msg_return = msg_return; }
-
+	// template< typename cb_msg_type > 
+	void cast_back_message( const std_msgs::msg::String::SharedPtr msg, std_msgs::msg::String& msg_return )
+	{ 
+		OUTLOG( "calling naive cast_back_message( )" ); 
+		// msg = msg; 
+		// msg_return = msg_return; 
+	}
+	
+	/*
 	// cast the service request
 	template< class c_srv_type_req >
 	std::string cast_service_request( const std::shared_ptr<typename c_srv_type_req::Request> req )
-	{ return "/{//}"; }
+	{ 
+		OUTLOG( "calling naive cast_service_request( )" ); 
+		return "/{//}"; 
+	}
 
 	// cast back the service request
 	template< typename cb_srv_type_req >
 	void cast_back_service_request( std::string &msg, std::shared_ptr< typename cb_srv_type_req::Request >& req )
-	{ msg = msg; req = req; }
+	{ 
+		OUTLOG( "calling naive cast_back_service_request( )" ); 
+		msg = msg; 
+		req = req; 
+	}
 
 	// cast the service response
 	template< typename c_srv_type_res >
 	std::string cast_service_response( const std::shared_ptr<typename c_srv_type_res::Response> res )
-	{ return "/{//}"; }
+	{ 
+		OUTLOG( "calling naive cast_service_response( )" ); 
+		return "/{//}"; 
+	}
 
 	// cast back the service response
 	template< typename cb_srv_type_res >
 	void cast_back_service_response( std::string &msg, std::shared_ptr< typename cb_srv_type_res::Response >& res )
-	{ msg = msg; res = res; }
+	{ 
+		OUTLOG( "calling naive cast_back_service_response( )" ); 
+		msg = msg; 
+		res = res; 
+	}
+	*/
 	
 	// --- RULES FOR Command.srv
 	// cast the service request rt2_assignment_1::srv::Command
@@ -205,7 +230,8 @@ namespace cast_tools
 	// cast back the service request of rt2_assignment_1::srv::Command
 	void cast_back_service_request( std::string &msg, std::shared_ptr<rt2_assignment_1::srv::Command::Request>& req )
 	{
-		req->command = msg;
+		std::vector<std::string> content = str_tools::pack_split( msg, ' ' );
+		req->command = content[0];
 	}
 
 	// cast the service response of rt2_assignment_1::srv::Command
@@ -271,7 +297,8 @@ public:
 	{
 		// cast the message to string
 		std_msgs::msg::String bridge_data;
-		bridge_data.data = cast_tools::cast_message< topicT_sub >( msg );
+		// bridge_data.data = cast_tools::cast_message< topicT_sub >( msg );
+		bridge_data.data = cast_tools::cast_message( msg );
 		
 		// publish the message
 		this->pub->publish( bridge_data );
@@ -282,7 +309,8 @@ public:
 	{
 		// cast back the message from string to message
 		topicT_pub bridge_data;
-		cast_tools::cast_back_message< topicT_pub >( msg, bridge_data );
+		// cast_tools::cast_back_message< topicT_pub >( msg, bridge_data );
+		cast_tools::cast_back_message( msg, bridge_data );
 		
 		// publish the message
 		this->pub->publish( bridge_data );
@@ -324,7 +352,8 @@ public:
 		
 		// cast the request to string
 		std_msgs::msg::String req_str;
-		req_str.data = cast_tools::cast_service_request< serviceT >( req );
+		// req_str.data = cast_tools::cast_service_request< serviceT >( req );
+		req_str.data = cast_tools::cast_service_request( req );
 		
 		// send the request to ROS1 through topic_out 
 		this->topic_out->publish( req_str );
@@ -339,7 +368,8 @@ public:
 		OUTLOG( "got a response from ROS1 -> [" << response_string << "]" );
 		
 		// cast back the message and write it
-		cast_tools::cast_back_service_response< serviceT >( response_string, res );
+		// cast_tools::cast_back_service_response< serviceT >( response_string, res );
+		cast_tools::cast_back_service_response( response_string, res );
 	}
 	
 	/// subscriber which calls the endpoint
@@ -351,19 +381,21 @@ public:
 		OUTLOG( "with data: [" << msg->data << "]" );
 		
 		// cast back of the request
-		auto req = std::make_shared< typename serviceT::Request >( );
-		cast_tools::cast_back_service_request< serviceT >( msg-> data, req );
+		std::shared_ptr< typename serviceT::Request > req = std::make_shared< typename serviceT::Request >( );
+		// cast_tools::cast_back_service_request< serviceT >( msg->data, req );
+		cast_tools::cast_back_service_request( msg->data, req );
 		
 		// call the endpoint and get the result
 		OUTLOG( "waiting for a response from the service..." );
 		auto res_future = service_in->async_send_request( req );
 		// synchronous request
 		res_future.wait( );
-		auto res = res_future.get( );
+		std::shared_ptr< typename serviceT::Response > res = res_future.get( );
 		
 		// cast the response from the endpoint
 		std_msgs::msg::String res_str;
-		res_str.data = cast_tools::cast_service_response< serviceT >( res );
+		// res_str.data = cast_tools::cast_service_response< serviceT >( res );
+		res_str.data = cast_tools::cast_service_response( res );
 		
 		// publish the response
 		OUTLOG( "returning response: [" << res_str.data << "]" );
@@ -418,7 +450,7 @@ private:
 	template< typename Ttopic >
 	void make_link_topic_out( bridge_topic< std_msgs::msg::String, Ttopic >* br_class, std::string sub_topic )
 	{
-		OUTLOG( "TOPIC --- to ROS1: " << sub_topic );
+		OUTLOG( "--- (out) TOPIC ROS1 to ROS2: " << sub_topic );
 		
 		// subscription
 		//    https://answers.ros.org/question/308386/ros2-add-arguments-to-callback/
@@ -442,7 +474,7 @@ private:
 	template< typename Ttopic >
 	void make_link_topic_in( bridge_topic< Ttopic, std_msgs::msg::String >* br_class, std::string pub_topic )
 	{
-		OUTLOG( "TOPIC --- from ROS1: " << pub_topic );
+		OUTLOG( "--- (in) TOPIC ROS2 to ROS1: " << pub_topic );
 		
 		// subscription
 		//    https://answers.ros.org/question/308386/ros2-add-arguments-to-callback/
@@ -465,7 +497,7 @@ private:
 	template< typename serviceT >
 	void make_link_service_in( bridge_service< serviceT >* br_class, std::string service_name )
 	{
-		OUTLOG( "SERVICE --- ROS2 service ROS1 client: " << service_name );
+		OUTLOG( "--- (in) SERVICE client in ROS2 service in ROS1: " << service_name );
 		
 		// new callback group
 		// vedi 
@@ -476,7 +508,7 @@ private:
 		// in subscriber -- request
 		// vedi anche
 		//    https://docs.ros.org/en/foxy/Tutorials/Topics/Topic-Statistics-Tutorial.html
-		OUTLOG( "subscription to " << str_tools::get_name_of_service_response( service_name ) );
+		OUTLOG( "subscription to " << str_tools::get_name_of_service_request( service_name ) );
 		br_class->topic_in = this->create_subscription< std_msgs::msg::String >(
 			str_tools::get_name_of_service_request( service_name ),
 			10,  // THE NEW MAGIC NUMBER! (what does it mean '10'? Why especially '10'? Has it a name?)
@@ -485,7 +517,7 @@ private:
 		);
 		
 		// out publisher -- response
-		OUTLOG( "publisher on " << str_tools::get_name_of_service_request( service_name ) );
+		OUTLOG( "publisher on " << str_tools::get_name_of_service_response( service_name ) );
 		br_class->topic_out = this->create_publisher< std_msgs::msg::String >(
 			str_tools::get_name_of_service_response( service_name ),
 			QUEUE_SZ_DEFAULT
@@ -501,7 +533,7 @@ private:
 	template< typename serviceT >
 	void make_link_service_out( bridge_service< serviceT >* br_class, std::string service_name )
 	{
-		OUTLOG( "SERVICE --- ROS1 service ROS2 client: " << service_name );
+		OUTLOG( "--- (out) SERVICE client in ROS1 service in ROS2: " << service_name );
 		
 		// new callback group
 		br_class->callback_group = this->create_callback_group(rclcpp::callback_group::CallbackGroupType::Reentrant);

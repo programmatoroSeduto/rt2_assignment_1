@@ -164,7 +164,15 @@ namespace cast_tools
 	}
 	
 	// --- STUB TEMPLATE CAST RULES
+	// cast topic msg
+	std::string cast_message( const typename std_msgs::String::ConstPtr& msg )
+	{ return "/{//}"; }
+
+	// cast back topic msg
+	void cast_back_message( const std_msgs::String::ConstPtr& msg, std_msgs::String& msg_return )
+	{ }
 	
+	/*
 	// cast topic msg
 	template< typename c_msg_type > 
 	std::string cast_message( const typename c_msg_type::ConstPtr& msg )
@@ -194,6 +202,7 @@ namespace cast_tools
 	template< typename cb_srv_type_res >
 	void cast_back_service_response( std::string msg, typename cb_srv_type_res::Response* res )
 	{ }
+	*/
 	
 	// --- RULES for rt2_assignment1::Command
 	
@@ -273,7 +282,8 @@ public:
 	{
 		// cast-back the message
 		std_msgs::String rmsg;
-		rmsg.data = cast_tools::cast_message< Topic_type >( msg );
+		// rmsg.data = cast_tools::cast_message< Topic_type >( msg );
+		rmsg.data = cast_tools::cast_message( msg );
 		
 		// publish the message
 		this->pub.publish( rmsg );
@@ -284,7 +294,8 @@ public:
 	{
 		// cast-back the message
 		Topic_type rmsg;
-		cast_tools::cast_back_message< Topic_type >( msg, rmsg );
+		// cast_tools::cast_back_message< Topic_type >( msg, rmsg );
+		cast_tools::cast_back_message( msg, rmsg );
 		
 		// publish the message
 		this->pub.publish( rmsg );
@@ -321,7 +332,8 @@ public:
 		
 		// cast the request to string
 		std_msgs::String req_str;
-		req_str.data = cast_tools::cast_service_request< serviceT >( &req );
+		// req_str.data = cast_tools::cast_service_request< serviceT >( &req );
+		req_str.data = cast_tools::cast_service_request( &req );
 		
 		// send the request to ROS2 through topic_out 
 		topic_out.publish( req_str );
@@ -334,13 +346,14 @@ public:
 			( ros::Duration( WAITING_DELAY ) ).sleep( );
 			ros::spinOnce( );
 			
-			OUTLOG( "waiting..." );
+			// OUTLOG( "waiting..." );
 			
 			/// @todo some break condition here? (maximum time?)
 		}
 		OUTLOG( "got a response from ROS2 -> [" << response_string << "]" );
 		
 		// cast back the message to response and write it (use a specific cast-back method)
+		// cast_tools::cast_back_service_response( response_string, &res );
 		cast_tools::cast_back_service_response( response_string, &res );
 		
 		return true;

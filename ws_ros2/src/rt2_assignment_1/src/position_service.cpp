@@ -11,6 +11,10 @@ using std::placeholders::_2;
 #define NODE_NAME "random_position_server"
 #define SERVICE_RANDOM_POSITION "/position_server"
 
+#define LOGSQUARE( str ) "[" << str << "] "
+#define OUTLOG( msg_stream ) RCLCPP_INFO_STREAM( rclcpp::get_logger( NODE_NAME ), msg_stream )
+#define OUTERR( msg_err_stream ) RCLCPP_ERROR_STREAM( rclcpp::get_logger( NODE_NAME ), "ERROR: " << msg_err_stream )
+
 class random_position_server : public rclcpp::Node
 {
 public:
@@ -33,9 +37,11 @@ private:
 		std::shared_ptr<rt2_assignment_1::srv::RandomPosition::Response> res
 	)
 	{
+		OUTLOG( "received a request!" );
 		res->x = randMToN( req->x_min, req->x_max );
 		res->y = randMToN( req->y_min, req->y_max );
 		res->theta = randMToN( -M_PI, M_PI );
+		OUTLOG( "POINT(" << res->x << ", " << res->y << ") THETA(" << res->theta << ")" );
 	}
 	
 	/// generate a random number in [M, N]

@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-		success = ( state == "SUCCEEDED" )
+		success = ( state == "SUCCEEDED" );
 		
 		if( success )
 			std::cout << "Position reached" << std::endl;

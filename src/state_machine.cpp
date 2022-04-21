@@ -27,10 +27,6 @@
  * x in [-5.0, 5.0], y in [-5.0, 5.0]. 
  * </p>
  * 
- * <b>UML component</b><br>
- * (See ... the overal architecture, for further informations)<br>
- * <img src="" alt="TODO uml"/><br>
- * 
  * <b>Services:</b> <br>
  * <ul>
  *     <li>
@@ -102,9 +98,9 @@ actionlib::SimpleActionClient<rt2_assignment1::GoToPointAction>* acglobal;
  *  
  * \brief implementation of service <b>/user_interface</b>
  * 
- * @param request The command to execute. If the command is the string "start"
+ * @param req The command to execute. If the command is the string "start"
  * 			then the node is enabled. Any other request will turn off the node. 
- * @param response success or not. 
+ * @param res success or not. 
  * 
  * @see Command.srv
  * 

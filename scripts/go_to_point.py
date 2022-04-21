@@ -16,32 +16,28 @@ This node moves the robot towards a given target (position+orientation)
 using a simple state machine. It is implemented as a ROS action. 
 </p>
 
-<b>UML component</b><br>
-(See ... the overal architecture, for further informations)<br>
-<img src="" alt="TODO uml"/><br>
-
 <b>Publishers:</b> <br>
 <ul>
     <li>
-			<i>/cmd_vel</i> : Twist <br>
-			The node can send a twist to the simulator through this topic. <br><br>
-		</li>
+        <i>/cmd_vel</i> : Twist <br>
+        The node can send a twist to the simulator through this topic. <br><br>
+    </li>
 </ul>
 
 <b>Subscribers:</b> <br>
 <ul>
     <li>
-			<i>/odom</i> : Odometry <br><br>
-		</li>
+        <i>/odom</i> : Odometry <br><br>
+    </li>
 </ul>
 
 <b>Providing actions</b> <br>
 <ul>
     <li>
-			<i>go_to_point</i> : GoToPoint.action <br>
-			Move the robot towards a given target pose. The node manages
-			a planar pose. 
-		</li>
+        <i>go_to_point</i> : GoToPoint.action <br>
+        Move the robot towards a given target pose. The node manages
+        a planar pose. 
+    </li>
 </ul>
 
 <b>TODOs</b><br>

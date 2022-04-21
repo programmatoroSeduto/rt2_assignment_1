@@ -21,16 +21,12 @@ any other key different from '1'. <br><br>
 There's no error handling. Just a simple implementation. 
 </p>
 
-<b>UML component</b><br>
-(See ... the overal architecture, for further informations)<br>
-<img src="" alt="TODO uml"/><br>
-
 <b>Clients:</b> <br>
 <ul>
     <li>
-			<i>/user_interface</i> : Command.srv <br>
-			see the service \ref state_machine.cpp <br><br>
-		</li>
+        <i>/user_interface</i> : Command.srv <br>
+        see the service \ref state_machine.cpp <br><br>
+    </li>
 </ul>
 
 <b>TODOs</b><br>

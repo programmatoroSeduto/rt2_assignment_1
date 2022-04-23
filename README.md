@@ -2,17 +2,71 @@
 
 *Francesco Ganci* - 4143910 - 2021/2022
 
+> Compatible With:
+> - ROS1 noetic
+
 ![Branch Action Cover](docs/img/cover-action.png)
 
-## Introduction
+## What is this?
 
-This repository contains two variations based on the project [rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1):
+This repository contains two variations based on the project [CarmineD8/rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1):
 
 - branch *action* : the rospy node `go_to_point.py` is implemented as a ROS1 action service, enabling the node to interrupt the random behaviour. 
 
 - branch *ros2* : the ROS/C++ nodes `position_service.cpp` and `state_machine.cpp` are reimplemented as ROS2 nodes, and a ROS1 brige is used to enable the C++ nodes to communicate with the other part of the project running on the ROS1 side.
 
 Here the branch *action* is described. 
+
+### Structure of the repository - branch *action*
+
+This branch contains a package to put into a workspace and compile. Here is the file tree with the main files inside:
+
+```
+/rt2_assignment1
+├── action			<> actions of the service
+│   └── GoToPoint.action			<> used by go_to_point
+│
+├── docs			<> code documentation (branch action)
+│   ├── Doxyfile			<> configuration file for Doxygen
+│   ├── build			<> documentation with Doxygen
+│   │   └── html
+│   │       └── index.html			<> main page of the Doxygen documentation
+│   │       
+│   └── img
+│
+├── videos			<> some video samples of the project
+│
+├── launch			<> launch fles
+│   ├── launch_gazebo.launch			<> only Gazebo
+│   ├── sim.launch			<> Gazebo and the other nodes
+│   └── sim_vrep.launch			<> arch only without Gazebo
+│
+├── models			<> robot model for the CoppeliaSim scene file
+│   └── pioneer_rt2			<> the model of the simulated robot
+│
+├── scene			<> CoppeliSim files
+│   └── pioneer_scene.ttt			<> scene file for CoppeliaSim
+│
+├── scripts			<> ROSpy nodes
+│   ├── go_to_point.py			<> motion planning algorithm
+│   └── user_interface.py			<> console interface
+│
+├── src			<> C++ nodes
+│   ├── dummy_action_client.cpp			
+│   ├── position_service.cpp			<> random position + orientation generator
+│   └── state_machine.cpp			<> central node of the arch
+│
+├── srv			<> custom ROS1 services
+│   ├── Command.srv			<> used by state_machine.cpp
+│   ├── Position.srv		<> used by go_to_point.py
+│   └── RandomPosition.srv			<> used by position_service.cpp
+│
+├── urdf
+│   └── my_robot.urdf			<> robot model for Gazebo
+│
+├── CMakeLists.txt
+└── manifest.xml
+```
 
 # How to setup and run the project - branch *action*
 
@@ -23,10 +77,13 @@ Here are the instruction for installing and running the project in your ROS1 env
 Before installing  the project, make sure to have a system with these requisites:
 
 - a working installation of ROS1 (the project is compatible with **ROS1 Noetic**)
-	better to use the Docker image [carmms84/noetic_ros2](https://hub.docker.com/r/carms84/noetic_ros2) to run the project
+	
+	better to use the Docker image [carms84/noetic_ros2](https://hub.docker.com/r/carms84/noetic_ros2) to run the project
 	
 - the branch *action* contains a package: create a workspace where to execute it before starting.
+	
 	Here's a script for quickly creating a workspace where to run the project:
+	
 	```bash
 	#! /bin/bash
 	
@@ -40,7 +97,7 @@ Before installing  the project, make sure to have a system with these requisites
 
 No external dependencies are required to run the project. 
 
-### DEPT - URDF robot description
+### DEPT -- URDF robot description
 
 The simulation uses Gazebo and the URDF model here: [pioneer_ctrl on GitHub](https://github.com/CarmineD8/pioneer_ctrl). Downloading the model is not necessary to run the project: the model is already integrated with this package. 
 
@@ -420,4 +477,4 @@ A project by *Francesco Ganci*, S4143910, upon a code provided by [CarmineD8](ht
 - [POST - How to download a file with Curl](https://www.cyberciti.biz/faq/download-a-file-with-curl-on-linux-unix-command-line/)
 - [POST - How to rename a file/folder using bash](https://linuxhint.com/rename_file_bash/)
 - [VRep/CoppeliaSim Command line arguments - from the official doc](https://www.coppeliarobotics.com/helpFiles/en/commandLine.htm)
-- 
+- [Linux bash command tree](http://mama.indstate.edu/users/ice/tree/)

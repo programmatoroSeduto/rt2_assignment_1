@@ -162,9 +162,9 @@ I recommend to follow these steps below for installing the project:
 	
 	the script will issue tree new consoles, each one building one workspace inside the project: 
 	
-	a. `ROS1 build` for *ros1_ws*, 
-	b. `ROS2 build` for *ros2_ws* 
-	c. and `BRIDGE build` for *bridge_ws*. 
+	- `ROS1 build` for *ros1_ws*, 
+	- `ROS2 build` for *ros2_ws* 
+	- and `BRIDGE build` for *bridge_ws*. 
 	
 	The console named *BRIDGE build* requires much time that the others: on my machine (luckily I've a very good PC right now) it takes 5 minutes to end. 
 	

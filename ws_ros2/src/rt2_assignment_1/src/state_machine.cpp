@@ -93,6 +93,13 @@ private:
 		auto go_to_point_res = go_to_point_promise.get( );
 		
 		is_busy = false;
+		
+		if( stop_signal )
+		{
+			OUTLOG( "End of the mission; STOP (programmed by service)" );
+			stop_signal = false;
+			start = false;
+		}
 	}
 	
 	// implementation of the service SERVICE_USER_INTERFACE
@@ -104,11 +111,22 @@ private:
 		OUTLOG( "service /user_interface RECEIVED COMMAND '" << req->command << "'" );
 		if( !( req->command == CMD_START ) && start && is_busy )
 		{
-			OUTERR( "The service is busy now! UNable to stop." );
+			// OUTERR( "The service is busy now! Unable to stop." );
+			
+			if( !this->stop_signal )
+			{
+				OUTLOG( "the working cycle will stop at the end of the current mission." );
+				this->stop_signal = true;
+			}
+			
 			return;
 		}
 		
 		this->start = ( req->command == CMD_START );
+		
+		// clear the stop signal if another "start" message has been received
+		if( this->start ) stop_signal = false;
+		
 		res->ok = this->start;
 		OUTLOG( ( this->start ? "START command received" : "STOP command received" ) );
 	}
@@ -118,6 +136,9 @@ private:
 	
 	// activity status flag of the node
 	bool is_busy = false;
+	
+	// signal for stopping the behaviour
+	bool stop_signal = false;
 	
 	// the callback group
 	rclcpp::callback_group::CallbackGroup::SharedPtr callback_group;

@@ -1,4 +1,3 @@
-
 # RT2 Assignment 1 - branch *action*
 
 *Francesco Ganci* - 4143910 - 2021/2022
@@ -404,10 +403,16 @@ source /opt/ros/noetic/setup.bash
 
 Remember to source the workspace whih contains the project. Otherwise the console won't recognise the name `rt2_assignment1`. 
 
+# Author and Contacts
+
+A project by *Francesco Ganci*, S4143910, upon a code provided by [CarmineD8](https://github.com/CarmineD8).
+
+- **Email** : _s4143910@studenti.unige.it_
+
 # See also
 
-- [rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1)
-- [rt2_assignment2 on GitHub](https://github.com/programmatoroSeduto/rt2_assignment_2)
+- [CarmineD8/rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1)
+- [programmatoroSeduto/rt2_assignment2 on GitHub](https://github.com/programmatoroSeduto/rt2_assignment_2)
 - [pioneer_ctrl on GitHub](https://github.com/CarmineD8/pioneer_ctrl)
 - [Docker Image: carmms84/noetic_ros2](https://hub.docker.com/r/carms84/noetic_ros2)
 - [PAGE - Download VRep/CoppeliaSim](https://www.coppeliarobotics.com/downloads)

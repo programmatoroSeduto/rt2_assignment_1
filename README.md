@@ -12,6 +12,6 @@ See [branch ros2](https://github.com/programmatoroSeduto/rt2_assignment_1/tree/r
 
 # Author and Contacts
 
-A project by *Francesco Ganci*, S4143910, upon a code provided by [CarmineD8](https://github.com/CarmineD8).
+A project by *[Francesco Ganci](https://www.youtube.com/watch?v=8FWUnyGlTOY)*, S4143910, upon a code provided by [CarmineD8](https://github.com/CarmineD8).
 
 - **Email** : _s4143910@studenti.unige.it_

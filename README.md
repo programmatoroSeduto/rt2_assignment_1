@@ -23,49 +23,46 @@ This branch contains a package to put into a workspace and compile. Here is the 
 
 ```
 /rt2_assignment1
-├── action			<> actions of the service
-│   └── GoToPoint.action			<> used by go_to_point
+├── action	<> actions of the service
+│   └── GoToPoint.action	<> used by go_to_point
 │
-├── docs			<> code documentation (branch action)
-│   ├── Doxyfile			<> configuration file for Doxygen
-│   ├── build			<> documentation with Doxygen
+├── docs	<> code documentation (branch action)
+│   ├── Doxyfile	<> configuration file for Doxygen
+│   ├── build	<> documentation with Doxygen
 │   │   └── html
-│   │       └── index.html			<> main page of the Doxygen documentation
+│   │       └── index.html	<> main page of the Doxygen documentation
 │   │       
 │   └── img
 │
-├── videos			<> some video samples of the project
+├── videos	<> some video samples of the project
 │
-├── launch			<> launch fles
-│   ├── launch_gazebo.launch			<> only Gazebo
-│   ├── sim.launch			<> Gazebo and the other nodes
-│   └── sim_vrep.launch			<> arch only without Gazebo
+├── launch	<> launch fles
+│   ├── launch_gazebo.launch	<> only Gazebo
+│   ├── sim.launch	<> Gazebo and the other nodes
+│   └── sim_vrep.launch	<> arch only without Gazebo
 │
-├── models			<> robot model for the CoppeliaSim scene file
-│   └── pioneer_rt2			<> the model of the simulated robot
+├── models	<> robot model for the CoppeliaSim scene file
+│   └── pioneer_rt2	<> the model of the simulated robot
 │
-├── scene			<> CoppeliSim files
-│   └── pioneer_scene.ttt			<> scene file for CoppeliaSim
+├── scene	<> CoppeliSim files
+│   └── pioneer_scene.ttt	<> scene file for CoppeliaSim
 │
-├── scripts			<> ROSpy nodes
-│   ├── go_to_point.py			<> motion planning algorithm
-│   └── user_interface.py			<> console interface
+├── scripts	<> ROSpy nodes
+│   ├── go_to_point.py	<> motion planning algorithm
+│   └── user_interface.py	<> console interface
 │
-├── src			<> C++ nodes
-│   ├── dummy_action_client.cpp			
-│   ├── position_service.cpp			<> random position + orientation generator
-│   └── state_machine.cpp			<> central node of the arch
+├── src	<> C++ nodes
+│   ├── dummy_action_client.cpp	
+│   ├── position_service.cpp	<> random position + orientation generator
+│   └── state_machine.cpp	<> central node of the arch
 │
 ├── srv			<> custom ROS1 services
-│   ├── Command.srv			<> used by state_machine.cpp
-│   ├── Position.srv		<> used by go_to_point.py
-│   └── RandomPosition.srv			<> used by position_service.cpp
+│   ├── Command.srv	<> used by state_machine.cpp
+│   ├── Position.srv	<> used by go_to_point.py
+│   └── RandomPosition.srv	<> used by position_service.cpp
 │
-├── urdf
-│   └── my_robot.urdf			<> robot model for Gazebo
-│
-├── CMakeLists.txt
-└── manifest.xml
+└── urdf
+    └── my_robot.urdf	<> robot model for Gazebo
 ```
 
 # How to setup and run the project - branch *action*

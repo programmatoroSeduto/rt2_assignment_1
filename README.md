@@ -79,7 +79,7 @@ Before installing  the project, make sure to have a system with these requisites
 	
 - the branch *action* contains a package: create a workspace where to execute it before starting.
 	
-	Here's a script for quickly creating a workspace where to run the project:
+	Here's a script for quickly creating a workspace where to run the project. Notice that later a script for installing everything is provided, see the section *installation script* velow in this document. 
 	
 	```bash
 	#! /bin/bash
@@ -96,7 +96,7 @@ No external dependencies are required to run the project.
 
 ### DEPT -- URDF robot description
 
-The simulation uses Gazebo and the URDF model here: [pioneer_ctrl on GitHub](https://github.com/CarmineD8/pioneer_ctrl). Downloading the model is not necessary to run the project: the model is already integrated with this package. 
+The simulation uses Gazebo and the URDF model here: [robot_description on GitHub](https://github.com/CarmineD8/robot_description). Downloading the model is not necessary to run the project: the model is already integrated with this package. 
 
 Inside the project there's a launch file which launches only the simulation without the other nodes:
 
@@ -106,7 +106,7 @@ roslaunch rt2_assignment1 launch_gazebo.launch
 
 ## Installation
 
-Follow these steps:
+My advice is to use the script in the next section. However, you can follow these steps f you wan to download the project manually:
 
 1. go inside the folder `src/` inside your workspace
 
@@ -144,7 +144,7 @@ cd src
 git clone https://github.com/programmatoroSeduto/rt2_assignment_1.git -b action ./rt2_assignment1
 cd ..
 catkin_make
-source ./devel/setup.bash
+# source ./devel/setup.bash
 ```
 
 ## Run the project with Gazebo
@@ -153,32 +153,42 @@ There are two ways to run the project: a quick way (simple run), and a manual wa
 
 ### First way - Quick Run
 
-You can easily run the project using the launch file:
+You can easily run the whole project using the launch file, even if I don't like much this method because the node `user_interface.py` cant give a clear output in the middle of the output from the other nodes. But if you're in a hurry, this just works:
 
 ```bash
 roslaunch rt2_assignment1 sim.launch
 ```
 
-After that, the window of Gazebo will appear with the robot spawned in the middle of the flat space. And, after a while, it will be prompted a message on the console: the system is waiting for a input:
+After that, the window of Gazebo will appear with the robot spawned in the middle of the flat space. And, after a while, it will be prompted a message on the console (it take some seconds). When the system is ready, it keeps awaiting for an input from the user, showing a message like the following:
 
 ```
+...garbage...
+[ INFO] [1650875921.826729800, 0.164000000]: Loading gazebo_ros_control plugin
+[ INFO] [1650875921.826899900, 0.164000000]: Starting gazebo_ros_control plugin in namespace: /robot
+[ INFO] [1650875921.827424000, 0.164000000]: gazebo_ros_control plugin is waiting for model URDF in parameter [/robot_description] on the ROS param server.
+[ INFO] [1650875921.949814600, 0.164000000]: Loaded gazebo_ros_control.
+[urdf_spawner-4] process has finished cleanly
+log file: /root/.ros/log/1b214d8c-c473-11ec-b29a-0242ac110002/urdf_spawner-4*.log
+
 Press 1 to start the robot 
 ```
 
-By sending *1* on the console, the robot will start a behaviour, made up of these steps repeated in loop:
+By sending `1` on the console, the robot will start to behave as described here, in a "endless" loop:
 
 1. generate a random position inside the space
 2. turn the robot towards the target
 3. move the robot towards the (x, y) position
 4. finally, align the head of the robot until the goal is reached
 
-The goal can be cancelled in any time by sending *0* on the console. 
+The goal can be cancelled in any time by sending `0` on the console. 
 
-Here's an example of typical output from the program:
+Here's an example of typical output from the program (a bit messy if you're using just the launch file): the robot is started giving the command to the console, then it moves and manages to achieve two goals before being stopped by the user command `0` (goal is cancelled). 
 
 ```
  ... 
 [ INFO] [1650648569.087740600, 0.358000000]: Loaded gazebo_ros_control.
+[urdf_spawner-4] process has finished cleanly
+log file: /root/.ros/log/1b214d8c-c473-11ec-b29a-0242ac110002/urdf_spawner-4*.log
 
 Press 1 to start the robot 1
 [state_machine] START command received. 
@@ -204,7 +214,7 @@ Final goal not reached
 
 ### Second way - Slow running
 
-The project is made up of four nodes: 
+I think this section can help for making clear the architecture of the project, which is made up of four nodes: 
 
 - `go_to_point.py` : the motion planning algorithm
 - `state_machine.cpp` : the working cycle of the robot
@@ -218,6 +228,8 @@ Follow these procedures:
 	```bash
 	roslaunch rt2_assignment1 launch_gazebo.launch
 	```
+	
+	This launch file, besides to run the ROS1 master, also spawns the robot in the middle of the simulation space using the URDF model description from the package folder `.../rt2_assignment1/models`. 
 
 2. run the node `go_to_point.py`:
 	
@@ -225,17 +237,17 @@ Follow these procedures:
 	rosrun rt2_assignment1 go_to_point.py
 	```
 	
-	This node implements a quite simple motion planning algorithm which enables the robot to reach a position plus head orientation always with a straight line. This functionality is implemented as ROS1 action server, hence it can be interrupted in any time using the cancellation. 
+	This node implements a quite simple motion planning algorithm which enables the robot to reach a position plus head orientation always with a straight line (actually it is not exact: the algorithm applies a little of curve to correct a possible disalignment due to disturbances in the odometry ad in the motion). 
 	
-	In the previous version, this node was a simple service, hence not interruptible until the end of the mission. 
+	This functionality has been implemented as a ROS1 action server, hence it can be interrupted in any time using the cancellation. In the previous version, this node was a simple service, hence not interruptible until the end of the mission. 
 	
-3. run the node `position_service.cpp`:
+3. time to launch the node the node `position_service.cpp`:
 	
 	```bash
 	rosrun rt2_assignment1 position_service
 	```
 	
-	This ROS1 service generates a position+orientation goal randomly within bounds attached to the service request. In this project, the only node using this service is `state_machine.cpp` which manages the working cycle of the robot. 
+	This ROS1 quite simple service generates a position+orientation goal randomly within bounds attached to the service request. In this project, the only node using this service is `state_machine.cpp` which manages the working cycle of the robot. 
 	
 4. run the node `state_machine.cpp`:
 	
@@ -261,7 +273,8 @@ Follow these procedures:
 
 Gazebo is a good simulation environment, nevertheless a bit limited. Hence, the branch *action* can work together with VRep/CoppeliaSim as well, a powerful and flexible simulation environment. 
 
-Here are the instructions for setting up and running the project using VRep/CoppeliaSim. 
+Here are the instructions for setting up and running the project using VRep/CoppeliaSim. It is a roughly boring job, so, if you haven't particular needs, I think it's better to exploit the script in the section *Script for CoppeliaSim setup* later on this README file. 
+Of course, if you encounter any issue with that script, consider to follow the installation step by step to catch the probem and fix it. 
 
 ### CoppeliaSim Setup
 
@@ -334,17 +347,18 @@ echo "done"
 
 ### Run the project with VRep/CoppeliaSim
 
-First of all, you need to open CoppeliaSim and check if everythin is working. In case of troubles, see the next section **VRep/CoppeliaSim Troubleshooting** for further infos. 
+First of all, you need to open CoppeliaSim and check if everythin is working. In case of troubles, see the next section **VRep/CoppeliaSim Troubleshooting** for further infos (maybe you're lucky and I catched your issue before on my own).
 
-Here are the steps for running VRep/CoppeliaSim in the right way. I assume here that the script shoed before has been employed in order to install the simulation environment. 
+Here are the steps for running VRep/CoppeliaSim in the right way. I assume here that the script showed before has been employed in order to install the simulation environment. 
 
-1. remember to run the ROS master before going further, and to source ROS1:
+1. *remember to run the ROS master before going further*, and to source ROS1:
 	```bash
-	source /opt/ros/noetic/setup.bash
+	# source /opt/ros/noetic/setup.bash
+	# source /root/test_ws/devel/setup.bash
+	# source /root/test_ws/devel/setup.bash && roscore &
+	
 	roscore &
 	```
-	
-	remember to source the ROS1 workspace containin the package `rt2_assignment1` as well. 
 	
 2. now, launch the simulation. 
 	
@@ -379,7 +393,7 @@ Here are the steps for running VRep/CoppeliaSim in the right way. I assume here 
 	The quick way: use the launch file inside the package. 
 	
 	```bash
-	roslaunch rt2_assignment1 sim.vrep.launch
+	roslaunch rt2_assignment1 sim_vrep.launch
 	```
 	
 	Otherwise, the best is to run the user interface in another console. First of all, launch the main nodes:
@@ -392,7 +406,7 @@ Here are the steps for running VRep/CoppeliaSim in the right way. I assume here 
 	rosrun rt2_assignment1 state_machine &
 	```
 	
-	Then ope another console and run this inside:
+	And finally open another console and run this inside:
 	
 	```bash
 	rosrun rt2_assignment1 user_interface.py
@@ -406,6 +420,8 @@ Here are some well-known issues that could occur in trying to run VRep/CoppeliaS
 
 **UNABLE TO LOAD THE ROS1 PLUGIN** (with ROS master not running)
 
+*This error shouldn't occur if you run the simulation exactly as I described beforehand.*
+
 Notification on the console: VRep/CoppeliaSim should complain with the following message. (Notice that you can ignore the error referring to the ROS2 plogin because it is of no use for this project) 
 
 ```
@@ -416,7 +432,7 @@ Notification on the console: VRep/CoppeliaSim should complain with the following
 [CoppeliaSim:error]   plugin 'ROS2': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.
 ```
 
-If you try to run the simulation in this situation, inside CoppeliaSim you will notice this strange error:
+If you try to run the simulation in this case, you will notice this weird error notification inside the console at the bottom of the CoppeliaSim window:
 
 ```
 [sandboxScript:info] Simulator launched, welcome!
@@ -437,7 +453,7 @@ stack traceback:
 [sandboxScript:info] Simulation stopped.
 ```
 
-The solution is to *run the ROS1 master* before launching the simulation environment. Just close everything, run the ROS master, then launch again VRep/CoppeliaSim. 
+The solution is to *run the ROS1 master* before launching the simulation environment. Just close everything, source the workspace you're working on, run the ROS master, and in the end launch again VRep/CoppeliaSim. That should fix it. 
 
 **UNABLE TO LOAD THE ROS1 PLUGIN** (with ROS master running)
 
@@ -457,7 +473,7 @@ source /opt/ros/noetic/setup.bash
 
 Remember to source the workspace whih contains the project. Otherwise the console won't recognise the name `rt2_assignment1`. 
 
-# Author and Contacts
+# Authors and Contacts
 
 A project by *Francesco Ganci*, S4143910, upon a code provided by [CarmineD8](https://github.com/CarmineD8).
 
@@ -465,13 +481,24 @@ A project by *Francesco Ganci*, S4143910, upon a code provided by [CarmineD8](ht
 
 # See also
 
-- [CarmineD8/rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1)
-- [programmatoroSeduto/rt2_assignment2 on GitHub](https://github.com/programmatoroSeduto/rt2_assignment_2)
-- [pioneer_ctrl on GitHub](https://github.com/CarmineD8/pioneer_ctrl)
-- [Docker Image: carmms84/noetic_ros2](https://hub.docker.com/r/carms84/noetic_ros2)
+## Projects on GitHub
+
+- The starter kit for the project: [CarmineD8/rt2_assignment1 on GitHub](https://github.com/CarmineD8/rt2_assignment1)
+- Take a look at the other update of this progect here: [programmatoroSeduto/rt2_assignment2 on GitHub](https://github.com/programmatoroSeduto/rt2_assignment_2)
+- The URDF description of the robot: [robot_description on GitHub](https://github.com/CarmineD8/robot_description)
+
+## Docker Image
+
+- A clean Docker Image already hosting a working release or ROS1 noetic: [Docker Image: carmms84/noetic_ros2](https://hub.docker.com/r/carms84/noetic_ros2)
+
+## About CoppeliaSim
+
 - [PAGE - Download VRep/CoppeliaSim](https://www.coppeliarobotics.com/downloads)
 - [FILE CURL - Download VRep/CoppeliaSim](https://www.coppeliarobotics.com/files/CoppeliaSim_Edu_V4_3_0_Ubuntu20_04.tar.xz)
+- [VRep/CoppeliaSim Command line arguments - from the official doc](https://www.coppeliarobotics.com/helpFiles/en/commandLine.htm)
+
+## About Linux and Bash
+
 - [POST - How to download a file with Curl](https://www.cyberciti.biz/faq/download-a-file-with-curl-on-linux-unix-command-line/)
 - [POST - How to rename a file/folder using bash](https://linuxhint.com/rename_file_bash/)
-- [VRep/CoppeliaSim Command line arguments - from the official doc](https://www.coppeliarobotics.com/helpFiles/en/commandLine.htm)
 - [Linux bash command tree](http://mama.indstate.edu/users/ice/tree/)
